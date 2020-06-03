@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Gauss' Law</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/bootstrap-vue.min.css">
+		<link rel="stylesheet" href="css/vue-slider-component.umd.min.css">
+	</head>
+	<body>
+		<b-container fluid>
+			<b-row>
+				<b-col cols="12">
+					<div id="app" class="p-1">
+						<b-row class="pt-1">
+							<b-col col="2">
+								<span>Inside Charge: {{chargeIn}} (nC)</span>
+								<vue-slider 
+								    v-model="chargeIn"
+								    min="-10"
+								    max="10"
+								 ></vue-slider>
+							</b-col>
+							<b-col col="2">
+								<span>Outside Charge: {{chargeOut}} (nC)</span>
+								<vue-slider
+								    v-model="chargeOut"
+								    min="-10"
+								    max="10"
+								 ></vue-slider>
+							</b-col>
+							<b-col col="2">
+								<span>Outer Radius: {{outerRadius}} (cm)</span>
+								<vue-slider
+								    v-model="outerRadius"
+								    :min="innerRadius"
+								    max="20"
+								 ></vue-slider>
+							</b-col>
+							<b-col col="2">
+								<span>Inner Radius: {{innerRadius}} (cm)</span>
+								<vue-slider
+								    v-model="innerRadius"
+								    :min="centerRadius"
+								    :max="outerRadius"
+								 ></vue-slider>
+							</b-col>
+							<b-col col="2">
+								<span>Center Radius: {{centerRadius}} (cm)</span>
+								<vue-slider
+								    v-model="centerRadius"
+								    min="0"
+								    :max="innerRadius"
+								 ></vue-slider>
+							</b-col>
+							<b-col col="1">
+								<b-button @click="reset">Reset</b-button>
+							</b-col>
+							<b-col col="1">
+								<b-button v-b-toggle.calculation>Calculation</b-button>
+								<b-sidebar id="calculation" title="Calculation" right shadow>
+							      <div class="px-3 py-2">
+							        <vue-mathjax :formula="formula"></vue-mathjax>
+							        <span id="formula">
+							        	
+							    	</span>
+							    	<span id="subtitute">
+							        	
+							    	</span>
+							      </div>
+							    </b-sidebar>
+							</b-col>
+						</b-row>
+					</div>
+				</b-col>
+			</b-row>
+			<b-row>
+				<b-col cols="12">
+					<div id="canvas"></div>
+				</b-col>
+			</b-row>
+		<b-container>
+		<script src="js/konva.js"></script>
+		<script src="js/victor.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script>
+			//fix for electron
+			if (typeof require !== 'undefined') {
+				window.$ = window.jQuery = require('./js/jquery.min.js');
+			}
+		</script>
+
+		<script src="js/popper.min.js"></script>
+		<script src="js/vue.min.js"></script>
+		<script src="js/portal-vue.umd.min.js"></script>
+		<!-- <script src="js/bootstrap.min.js"></script> -->
+		<script src="js/bootstrap-vue.min.js"></script>
+		<script src="js/vue-slider-component.umd.min.js"></script>
+		<script src="js/load_mathjax.js" id="MathJax-script"></script>
+		
+		<script>
+			var width = window.innerWidth;
+		    var height = window.innerHeight;
+
+		    var stage = new Konva.Stage({
+		    	container: 'canvas',
+		        width: width,
+		        height: height,
+		    });
+
+		    var layer = new Konva.Layer();
+		    var rectX = stage.width() / 2 - 50;
+		    var rectY = stage.height() / 2 - 25;
+
+		    var outerRadius = 130; //cm
+		    var innerRadius = 100; //cm
+		    var centerRadius = 50; //cm
+		    var chargeIn = 5; //nC
+		    var chargeOut = 5; //nC
+
+		    var fieldValueText = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: '',
+	        	fontSize: 20
+	      	});
+	      	fieldValueText.zIndex(998);
+
+	      	var chargeSignsCenter = [];
+	      	for (i = 0; i < 10; i++) {
+	      		chargeSignsCenter[i] = new Konva.Text({
+		        	x: 0,
+		        	y: 0,
+		        	text: '',
+		        	fontSize: 20,
+		        	visible: false
+		      	});
+		      	chargeSignsCenter[i].zIndex(997);
+	      	}
+
+	      	var chargeSignsOuter = [];
+	      	for (i = 0; i < 10; i++) {
+	      		chargeSignsOuter[i] = new Konva.Text({
+		        	x: 0,
+		        	y: 0,
+		        	text: '',
+		        	fontSize: 20,
+		        	visible: false
+		      	});
+		      	chargeSignsOuter[i].zIndex(997);
+	      	}
+
+		    var circleCenter = new Konva.Circle({
+		        x: stage.width() / 2,
+		        y: stage.height() / 2,
+		        radius: centerRadius,
+		        fill: '#b87333',
+		        stroke: 'black',
+		        strokeWidth: 0,
+		        //draggable: true,
+		    });
+
+		    var circleOuter = new Konva.Circle({
+		        x: stage.width() / 2,
+		        y: stage.height() / 2,
+		        radius: outerRadius,
+		        fill: '#A9A9A9',
+		        stroke: 'black',
+		        strokeWidth: 0,
+		        //draggable: true,
+		    });
+
+		    var circleInner = new Konva.Circle({
+		        x: stage.width() / 2,
+		        y: stage.height() / 2,
+		        radius: innerRadius,
+		        fill: 'white',
+		        stroke: 'white',
+		        strokeWidth: 0,
+		       // draggable: true,
+		    });
+
+		    var arrow = new Konva.Arrow({
+		        points: [0, 0, 0, 0],
+		        pointerLength: 20,
+		        pointerWidth: 20,
+		        fill: 'black',
+		        stroke: 'black',
+		        strokeWidth: 4,
+		    });
+		    arrow.zIndex(999);
+
+		    var point = new Konva.Circle({
+		        x: width/2 - outerRadius - 10,
+		        y: height/2,
+		        radius: 10,
+		        fill: 'black',
+		        stroke: 'black',
+		        strokeWidth: 1,
+		        draggable: true,
+		    });
+		    point.zIndex(1000);
+
+		    var transformToOurCoordinate = function(victor) {
+		    	return new Victor(victor.x - width/2, height/2 - victor.y);
+		    }
+
+
+		    var transformToGraphicsCoordinate = function(victor) {
+		    	return new Victor(width/2 + victor.x, height/2 - victor.y);
+		    }
+
+		    var rotateVectorField = function(x, y) {
+		    	let v = (new Victor(x, y)).multiply(new Victor(Math.sqrt(x*x + y*y), Math.sqrt(x*x + y*y)));
+
+		    	return v;
+		    }
+
+		    var K = 8.99*Math.pow(10, 9);
+		    var electricField = function(x, y) {
+		    	let distance = Math.sqrt(x*x + y*y);
+
+		    	var vec;
+		    	var fieldValue = 0;
+		    	var formula = '';
+		    	var subtitute = '';
+		    	if (distance > outerRadius) {
+		    		formula = '\\frac {K*(q_{in}+q_{out})}{R^2}';
+		    		subtitute = '\\frac {8.99*10^9*(' + (chargeIn + chargeOut) + ')*10^{-9}}{' + (Math.pow(distance, 2)/100).toFixed(2) +'*10^{-4}}';
+		    		fieldValue = K*(chargeIn+chargeOut)*Math.pow(10, -9)/Math.pow(distance, 2)/Math.pow(10, -4);
+		    		//100 pixel equal 10 cm so divide the distance by 10
+		    		fieldValue *= Math.pow(10, 2);
+		    		vec = new Victor(fieldValue*x, fieldValue*y);
+		    	} else if (distance > innerRadius && distance < outerRadius) {
+		    		formula = '0';
+		    		subtitute = '0';
+		    		fieldValue = 0;
+		    		vec = new Victor(0, 0);
+		    	} else if (distance < innerRadius && distance > centerRadius) {
+		    		formula = '\\frac {K*q_{in}}{R^2}';
+		    		subtitute = '\\frac {8.99*10^9*' + chargeIn + '*10^{-9}}{' + (Math.pow(distance, 2)/100).toFixed(2) +'*10^{-4}}';
+		    		fieldValue = K*chargeIn*Math.pow(10, -9)/Math.pow(distance, 2)/Math.pow(10, -4);
+		    		//100 pixel equal 10 cm so divide the distance by 10
+		    		fieldValue *= Math.pow(10, 2);
+		    		vec = new Victor(fieldValue*x, fieldValue*y);
+		    	} else {
+		    		formula = '\\frac {K*q_in*R}{r^3}';
+		    		subtitute = '\\frac {8.99*10^9*' + chargeIn + '*10^{-9}*' + (distance/10).toFixed(2) + '*10^{-2}}{' + (Math.pow(centerRadius, 3)/Math.pow(10, 3)).toFixed(2) +'*10^{-6}}';
+		    		fieldValue = K*chargeIn*Math.pow(10, -9)*distance*Math.pow(10, -2)/Math.pow(centerRadius, 3)/Math.pow(10, -6);
+		    		//100 pixel equal 10 cm so divide the distance by 10
+		    		fieldValue *= Math.pow(10, 2);
+		    		vec = new Victor(fieldValue*x, fieldValue*y);
+		    	}
+		    	
+		    	var ratio = Math.pow(10, 3)*5;
+		    	vec.divide(new Victor(ratio, ratio));
+		    	return {
+		    		vec: vec, 
+		    		fieldValue: fieldValue, 
+		    		distance: distance/10,
+		    		fieldValue: fieldValue,
+		    		formula: formula,
+		    		subtitute: subtitute
+		    	}; 
+		    }
+
+		    var drawVector = function(x, y, vectorField, magnitude) {
+		    	var graphicsPoint = new Victor(x, y);
+		    	var ourPoint = transformToOurCoordinate(graphicsPoint);
+
+		    	var pointInfo = vectorField(ourPoint.x, ourPoint.y);
+		    	
+		    	let vector = pointInfo.vec;
+		    	if (vector.x == 0 && vector.y == 0) {
+		    		arrow.setVisible(false);
+		    	} else {
+		    		arrow.setVisible(true);
+		    	}
+		    	arrow.points([x, y, x + vector.x, y - vector.y]);
+
+		    	fieldValueText.text('E = ' + (pointInfo.fieldValue/1000).toFixed(2) + ' kN/C' + '\nR = ' + pointInfo.distance.toFixed(2) + ' cm');
+		    	fieldValueText.x(x - 3);
+		    	fieldValueText.y(y + 10);
+
+		    	var $formulaText = $('#formula');
+		    	var $subtituteText = $('#subtitute');
+		    	if (MathJax.tex2svgPromise) {
+			    	MathJax.tex2svgPromise('E = ' + pointInfo.formula, {}).then(function (node) {
+				    	$formulaText.html(node);
+				        MathJax.startup.document.clear();
+				        MathJax.startup.document.updateDocument();
+				    }).catch(function (err) {
+				        $formulaText.html(err.message);
+				    }).then(function () {
+				        
+				    });
+			  	}
+
+			  	if (MathJax.tex2svgPromise) {
+				    MathJax.tex2svgPromise('E = ' + pointInfo.subtitute, {}).then(function (node) {
+				        $subtituteText.html(node);
+				        MathJax.startup.document.clear();
+				        MathJax.startup.document.updateDocument();
+				    }).catch(function (err) {
+				        $subtituteText.html(err.message);
+				    }).then(function () {
+				        
+				    });
+			  	}
+		    }
+
+		    // add cursor styling
+		    point.on('dragmove', function (event) {
+		    	drawVector(point.attrs.x, point.attrs.y, electricField, 10);
+		    });
+
+		    layer.add(circleOuter);
+		    layer.add(circleInner);
+		    layer.add(circleCenter);
+		    layer.add(point);
+		    layer.add(arrow);
+		    layer.add(fieldValueText);
+
+		    for (i = 0; i < 10; i++) {
+		    	layer.add(chargeSignsOuter[i]);
+		    	layer.add(chargeSignsCenter[i]);
+		    }
+
+		    stage.add(layer);
+
+		    var reDraw = function(cIn, cOut, outerR, innerR, centerR) {
+		    	chargeIn = cIn;
+		    	chargeOut = cOut;
+		    	outerRadius = 10*outerR;
+		    	innerRadius = 10*innerR;
+		    	centerRadius = 10*centerR;
+		    	circleOuter.setRadius(outerRadius);
+		    	circleInner.setRadius(innerRadius);
+		    	circleCenter.setRadius(centerRadius);
+		    	
+		    	drawVector(point.attrs.x, point.attrs.y, electricField, 10);
+
+		    	for (i = 0; i < 10; i++) {
+			    	chargeSignsOuter[i].text(chargeOut == 0 ? '' : chargeOut > 0 ? '+' : '-');
+			    	chargeSignsOuter[i].hide();
+			    	chargeSignsCenter[i].text(chargeIn == 0 ? '' : chargeIn > 0 ? '+' : '-');
+			    	chargeSignsCenter[i].hide();
+			    }
+
+			    if (chargeIn != 0) {
+			    	var centerRotate1 = Math.floor(Math.abs(chargeIn - 1)/2);
+			    	var centerRotate2 = Math.ceil(Math.abs(chargeIn - 1)/2);
+
+			    	chargeSignsCenter[0].x(width/2 - 6);
+			    	chargeSignsCenter[0].y(height/2 - 6);
+			    	chargeSignsCenter[0].show();
+
+			    	for (i = 1; i <= centerRotate1; i++) {
+			    		chargeSignsCenter[i].x(centerRadius/3*Math.cos(2*Math.PI/centerRotate1*(i - 1)) + width/2 - 6);
+			    		chargeSignsCenter[i].y(centerRadius/3*Math.sin(2*Math.PI/centerRotate1*(i - 1)) + height/2 - 6);
+			    		chargeSignsCenter[i].show();
+			    	}
+
+			    	for (; i < Math.abs(chargeIn); i++) {
+			    		chargeSignsCenter[i].x(2*centerRadius/3*Math.cos(2*Math.PI/centerRotate2*(i - 1 - centerRotate1)) + width/2 - 6);
+			    		chargeSignsCenter[i].y(2*centerRadius/3*Math.sin(2*Math.PI/centerRotate2*(i - 1 - centerRotate1)) + height/2 - 6);
+			    		chargeSignsCenter[i].show();
+			    	}
+			    }
+
+			    if (chargeOut != 0) {
+			    	var outerRotate = Math.abs(chargeOut);
+			    	for (i = 0; i < outerRotate; i++) {
+			    		chargeSignsOuter[i].x((outerRadius - 3)*Math.cos(2*Math.PI/outerRotate*i) + width/2 - 6);
+			    		chargeSignsOuter[i].y((outerRadius - 3)*Math.sin(2*Math.PI/outerRotate*i) + height/2 - 6);
+			    		chargeSignsOuter[i].show();
+			    	}
+			    }
+
+		    	layer.draw();
+		    }
+		</script>
+
+		<script>
+			new Vue({
+				el: '#app',
+				components: {
+				    'vueSlider': window[ 'vue-slider-component' ],
+				    'vueMathJax': window['vue-mathjax']
+				},
+				data() {
+					return {
+						chargeIn,
+						chargeOut,
+						outerRadius: outerRadius/10,
+						innerRadius: innerRadius/10,
+						centerRadius: centerRadius/10,
+
+						temporaryStopReDraw: false,
+
+						formula: 0,
+					}
+				},
+				watch: {
+					outerRadius() {
+						if (!this.temporaryStopReDraw) {
+							this.reDraw(this.chargeIn, this.chargeOut, this.outerRadius, this.innerRadius, this.centerRadius);
+						}
+					},
+					innerRadius() {
+						if (!this.temporaryStopReDraw) {
+							this.reDraw(this.chargeIn, this.chargeOut, this.outerRadius, this.innerRadius, this.centerRadius);
+						}
+					},
+					centerRadius() {
+						if (!this.temporaryStopReDraw) {
+							this.reDraw(this.chargeIn, this.chargeOut, this.outerRadius, this.innerRadius, this.centerRadius);
+						}
+					},
+					chargeIn() {
+						if (!this.temporaryStopReDraw) {
+							this.reDraw(this.chargeIn, this.chargeOut, this.outerRadius, this.innerRadius, this.centerRadius);
+						}
+					},
+					chargeOut() {
+						if (!this.temporaryStopReDraw) {
+							this.reDraw(this.chargeIn, this.chargeOut, this.outerRadius, this.innerRadius, this.centerRadius);
+						}
+					},
+				},
+				mounted() {
+					this.reDraw(this.chargeIn, this.chargeOut, this.outerRadius, this.innerRadius, this.centerRadius);
+				},
+				methods: {
+					reDraw,
+					reset() {
+						location.reload();
+					}
+				}
+			});
+		</script>
+
+	</body>
+</html>
