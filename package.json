@@ -21,5 +21,6 @@
     "mac": {
       "category": "vunguyen.physics.phys202.guasslaw"
     }
-  }
+  },
+  "repository": "https://github.com/highlinestudent/gausslaw"
 }
