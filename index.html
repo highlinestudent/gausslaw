@@ -147,8 +147,20 @@
 		      	chargeSignsCenter[i].zIndex(997);
 	      	}
 
-	      	var chargeSignsOuter = [];
+	      	var chargeSignsInner = [];
 	      	for (i = 0; i < 10; i++) {
+	      		chargeSignsInner[i] = new Konva.Text({
+		        	x: 0,
+		        	y: 0,
+		        	text: '',
+		        	fontSize: 20,
+		        	visible: false
+		      	});
+		      	chargeSignsInner[i].zIndex(997);
+	      	}
+
+	      	var chargeSignsOuter = [];
+	      	for (i = 0; i < 30; i++) {
 	      		chargeSignsOuter[i] = new Konva.Text({
 		        	x: 0,
 		        	y: 0,
@@ -331,8 +343,12 @@
 		    layer.add(fieldValueText);
 
 		    for (i = 0; i < 10; i++) {
-		    	layer.add(chargeSignsOuter[i]);
+		    	layer.add(chargeSignsInner[i]);
 		    	layer.add(chargeSignsCenter[i]);
+		    }
+
+		    for (i = 0; i < 30; i++) {
+		    	layer.add(chargeSignsOuter[i]);
 		    }
 
 		    stage.add(layer);
@@ -350,8 +366,8 @@
 		    	drawVector(point.attrs.x, point.attrs.y, electricField, 10);
 
 		    	for (i = 0; i < 10; i++) {
-			    	chargeSignsOuter[i].text(chargeOut == 0 ? '' : chargeOut > 0 ? '+' : '-');
-			    	chargeSignsOuter[i].hide();
+			    	chargeSignsInner[i].text(chargeIn == 0 ? '' : chargeIn > 0 ? '-' : '+');
+			    	chargeSignsInner[i].hide();
 			    	chargeSignsCenter[i].text(chargeIn == 0 ? '' : chargeIn > 0 ? '+' : '-');
 			    	chargeSignsCenter[i].hide();
 			    }
@@ -359,6 +375,7 @@
 			    if (chargeIn != 0) {
 			    	var centerRotate1 = Math.floor(Math.abs(chargeIn - 1)/2);
 			    	var centerRotate2 = Math.ceil(Math.abs(chargeIn - 1)/2);
+			    	var innerRotate = Math.abs(chargeIn);
 
 			    	chargeSignsCenter[0].x(width/2 - 6);
 			    	chargeSignsCenter[0].y(height/2 - 6);
@@ -375,10 +392,24 @@
 			    		chargeSignsCenter[i].y(2*centerRadius/3*Math.sin(2*Math.PI/centerRotate2*(i - 1 - centerRotate1)) + height/2 - 6);
 			    		chargeSignsCenter[i].show();
 			    	}
+
+			    	for (i = 0; i < innerRotate; i++) {
+			    		chargeSignsInner[i].x((innerRadius + 3)*Math.cos(2*Math.PI/innerRotate*i) + width/2 - 6);
+			    		chargeSignsInner[i].y((innerRadius + 3)*Math.sin(2*Math.PI/innerRotate*i) + height/2 - 6);
+			    		chargeSignsInner[i].show();
+			    	}
 			    }
 
-			    if (chargeOut != 0) {
-			    	var outerRotate = Math.abs(chargeOut);
+
+			    var chargeRemain = (chargeIn + chargeOut) + chargeIn;
+
+			    for (i = 0; i < 30; i++) {
+			    	chargeSignsOuter[i].text(chargeRemain == 0 ? '' : chargeRemain > 0 ? '+' : '-');
+			    	chargeSignsOuter[i].hide();
+			    }
+			    
+			    if (chargeRemain != 0) {
+			    	var outerRotate = Math.abs(chargeRemain);
 			    	for (i = 0; i < outerRotate; i++) {
 			    		chargeSignsOuter[i].x((outerRadius - 3)*Math.cos(2*Math.PI/outerRotate*i) + width/2 - 6);
 			    		chargeSignsOuter[i].y((outerRadius - 3)*Math.sin(2*Math.PI/outerRotate*i) + height/2 - 6);
