@@ -17,47 +17,80 @@
 				<b-col cols="12">
 					<div id="app" class="p-1">
 						<b-row class="pt-1">
-							<b-col col="2">
+							<b-col cols="11">
+								<b-alert show>In this applet, a uniformly charged inner sphere of radius <strong>R1</strong> is surrounded by a conducting spherical shell of inner radius <strong>R2</strong> and outer radius <strong>R3</strong>. You can adjust the charges and radii and measure the electric field as a function of distance (r) from the center.</b-alert>
+							</b-col>
+							<b-col cols="1">
+								<a href="https://github.com/highlinestudent/gausslaw" target="_blank" class="float-right">
+									<b-img src="img/Octocat.png" fluid alt="Github logo" style="max-width: 50px;"></b-img>
+								</a>
+							</b-col>
+						</b-row>
+						<b-row class="pt-1">
+							<b-col cols="2">
 								<span>Inside Charge: {{chargeIn}} (nC)</span>
 								<vue-slider 
 								    v-model="chargeIn"
 								    min="-10"
 								    max="10"
+								    :marks="chargeMarks"
 								 ></vue-slider>
 							</b-col>
-							<b-col col="2">
+							<b-col cols="2">
 								<span>Outside Charge: {{chargeOut}} (nC)</span>
 								<vue-slider
 								    v-model="chargeOut"
 								    min="-10"
 								    max="10"
+								    :marks="chargeMarks"
 								 ></vue-slider>
 							</b-col>
-							<b-col col="2">
-								<span>Outer Radius: {{outerRadius}} (cm)</span>
-								<vue-slider
-								    v-model="outerRadius"
-								    :min="innerRadius"
-								    max="20"
-								 ></vue-slider>
-							</b-col>
-							<b-col col="2">
-								<span>Inner Radius: {{innerRadius}} (cm)</span>
-								<vue-slider
-								    v-model="innerRadius"
-								    :min="centerRadius"
-								    :max="outerRadius"
-								 ></vue-slider>
-							</b-col>
-							<b-col col="2">
-								<span>Center Radius: {{centerRadius}} (cm)</span>
+							<b-col cols="2">
+								<span>Center Radius (R1): {{centerRadius}} (cm)</span>
 								<vue-slider
 								    v-model="centerRadius"
 								    min="0"
 								    :max="innerRadius"
-								 ></vue-slider>
+								    :marks="true"
+								 >
+								 	<template v-slot:mark="{ pos, label }">
+									    <div v-if="pos == 0 || pos == 100" class="vue-slider-mark-label" :style="{ left: `${pos == 0 ? 0 : 100}%` }">
+									      {{ pos == 0 ? 0 : pos == 100 ? innerRadius : '' }}
+									    </div>
+									</template>
+								 </vue-slider>
 							</b-col>
-							<b-col col="1">
+							<b-col cols="2">
+								<span>Inner Radius (R2): {{innerRadius}} (cm)</span>
+								<vue-slider
+								    v-model="innerRadius"
+								    :min="centerRadius"
+								    :max="outerRadius"
+								    :marks="true"
+								 >
+								 	<template v-slot:mark="{ pos, label }">
+									    <div v-if="pos == 0 || pos == 100" class="vue-slider-mark-label" :style="{ left: `${pos == 0 ? 0 : 100}%` }">
+									      {{ pos == 0 ? centerRadius : pos == 100 ? outerRadius : '' }}
+									    </div>
+									</template>
+								 </vue-slider>
+							</b-col>
+							<b-col cols="2">
+								<span>Outer Radius (R3): {{outerRadius}} (cm)</span>
+								<vue-slider
+								    v-model="outerRadius"
+								    :min="innerRadius"
+								    max="20"
+								    :marks="true"
+								 >
+								 	<template v-slot:mark="{ pos, label }">
+									    <div v-if="pos == 0 || pos == 100" class="vue-slider-mark-label" :style="{ left: `${pos == 0 ? 0 : 100}%` }">
+									      {{ pos == 0 ? innerRadius : pos == 100 ? 20 : '' }}
+									    </div>
+									</template>
+								 </vue-slider>
+							</b-col>
+							<b-col cols="1">
 								<b-button-group>
 									<b-button @click="reset">Reset</b-button>
 									<b-button v-b-toggle.calculation variant="info">Calculation</b-button>
@@ -74,10 +107,7 @@
 							      </div>
 							    </b-sidebar>
 							</b-col>
-							<b-col col="1">
-								<a href="https://github.com/highlinestudent/gausslaw" target="_blank" class="float-right">
-									<b-img src="img/Octocat.png" fluid alt="Github logo" style="max-width: 50px;"></b-img>
-								</a>
+							<b-col cols="1">
 							</b-col>
 						</b-row>
 					</div>
@@ -131,7 +161,7 @@
 	        	x: 0,
 	        	y: 0,
 	        	text: '',
-	        	fontSize: 20
+	        	fontSize: 15
 	      	});
 	      	fieldValueText.zIndex(998);
 
@@ -221,6 +251,87 @@
 		        draggable: true,
 		    });
 		    point.zIndex(1000);
+
+		    var arrowR1 = new Konva.Arrow({
+		        points: [0, 0, 0, 0],
+		        pointerLength: 20,
+		        pointerWidth: 20,
+		        fill: 'black',
+		        stroke: 'black',
+		        strokeWidth: 1,
+		        pointerWidth: 6,
+		        pointerLength: 6,
+		    });
+		    arrowR1.zIndex(997);
+		    var arrowR1Text = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: 'R1',
+	        	fontSize: 15,
+	      	});
+	      	arrowR1Text.zIndex(997);
+
+		    var arrowR2 = new Konva.Arrow({
+		        points: [0, 0, 0, 0],
+		        pointerLength: 20,
+		        pointerWidth: 20,
+		        fill: 'black',
+		        stroke: 'black',
+		        strokeWidth: 1,
+		        pointerWidth: 6,
+		        pointerLength: 6,
+		    });
+		    arrowR2.zIndex(997);
+		    var arrowR2Text = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: 'R2',
+	        	fontSize: 15
+	      	});
+	      	arrowR2Text.zIndex(997);
+
+		    var arrowR3 = new Konva.Arrow({
+		        points: [0, 0, 0, 0],
+		        pointerLength: 20,
+		        pointerWidth: 20,
+		        fill: 'black',
+		        stroke: 'black',
+		        strokeWidth: 1,
+		        pointerWidth: 6,
+		        pointerLength: 6,
+		    });
+		    arrowR3.zIndex(997);
+		    var arrowR3Text = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: 'R3',
+	        	fontSize: 15
+	      	});
+	      	arrowR3Text.zIndex(997);
+
+	      	var outerChargeText = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: '',
+	        	fontSize: 15
+	      	});
+	      	outerChargeText.zIndex(997);
+
+	      	var innerChargeText = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: '',
+	        	fontSize: 15
+	      	});
+	      	innerChargeText.zIndex(997);
+
+	      	var centerChargeText = new Konva.Text({
+	        	x: 0,
+	        	y: 0,
+	        	text: '',
+	        	fontSize: 15
+	      	});
+	      	centerChargeText.zIndex(997);
 
 		    var transformToOurCoordinate = function(victor) {
 		    	return new Victor(victor.x - width/2, height/2 - victor.y);
@@ -340,6 +451,15 @@
 		    layer.add(circleCenter);
 		    layer.add(point);
 		    layer.add(arrow);
+		    layer.add(arrowR1);
+		    layer.add(arrowR2);
+		    layer.add(arrowR3);
+		    layer.add(arrowR1Text);
+		    layer.add(arrowR2Text);
+		    layer.add(arrowR3Text);
+		    layer.add(outerChargeText);
+		    layer.add(innerChargeText);
+		    layer.add(centerChargeText);
 		    layer.add(fieldValueText);
 
 		    for (i = 0; i < 10; i++) {
@@ -401,7 +521,7 @@
 			    }
 
 
-			    var chargeRemain = (chargeIn + chargeOut) + chargeIn;
+			    var chargeRemain = chargeIn + chargeOut;
 
 			    for (i = 0; i < 30; i++) {
 			    	chargeSignsOuter[i].text(chargeRemain == 0 ? '' : chargeRemain > 0 ? '+' : '-');
@@ -416,6 +536,38 @@
 			    		chargeSignsOuter[i].show();
 			    	}
 			    }
+
+			    var arrowTop = new Victor(centerRadius*Math.cos(Math.PI/4), centerRadius*Math.sin(Math.PI/4));
+			    arrowR1.points([width/2, height/2, width/2 + arrowTop.x, height/2 + arrowTop.y]);
+			    arrowTop = new Victor(centerRadius/2*Math.cos(Math.PI/4), centerRadius/2*Math.sin(Math.PI/4));
+			    arrowR1Text.x(width/2 + arrowTop.x - 15);
+			    arrowR1Text.y(height/2 + arrowTop.y);
+
+			    arrowTop = new Victor(innerRadius*Math.cos(3*Math.PI/4), innerRadius*Math.sin(3*Math.PI/4));
+			    arrowR2.points([width/2, height/2, width/2 + arrowTop.x, height/2 + arrowTop.y]);
+			    arrowR2Text.x(width/2 + arrowTop.x + 15);
+			    arrowR2Text.y(height/2 + arrowTop.y - 15)
+
+			    arrowTop = new Victor(outerRadius*Math.cos(6*Math.PI/4), outerRadius*Math.sin(6*Math.PI/4));
+			    arrowR3.points([width/2, height/2, width/2 + arrowTop.x, height/2 + arrowTop.y]);
+			    arrowTop = new Victor(innerRadius*Math.cos(6*Math.PI/4), innerRadius*Math.sin(6*Math.PI/4));
+			    arrowR3Text.x(width/2 + arrowTop.x);
+			    arrowR3Text.y(height/2 + arrowTop.y + 5);
+
+			    arrowTop = new Victor(outerRadius*Math.cos(7*Math.PI/4), outerRadius*Math.sin(7*Math.PI/4));
+			    outerChargeText.x(width/2 + arrowTop.x + 15);
+			    outerChargeText.y(height/2 + arrowTop.y);
+			    outerChargeText.text(chargeRemain > 0 ? '+' + chargeRemain : chargeRemain);
+
+			    arrowTop = new Victor(innerRadius*Math.cos(7*Math.PI/4), innerRadius*Math.sin(7*Math.PI/4));
+			    innerChargeText.x(width/2 + arrowTop.x - 17);
+			    innerChargeText.y(height/2 + arrowTop.y);
+			    innerChargeText.text(chargeIn > 0 ? -chargeIn : chargeIn == 0 ? chargeIn : '+' + (-chargeIn));
+
+			    arrowTop = new Victor(centerRadius*Math.cos(7*Math.PI/4), centerRadius*Math.sin(7*Math.PI/4));
+			    centerChargeText.x(width/2 + arrowTop.x + 4);
+			    centerChargeText.y(height/2 + arrowTop.y);
+			    centerChargeText.text(chargeIn > 0 ? '+' + chargeIn : chargeIn);
 
 		    	layer.draw();
 		    }
@@ -439,6 +591,8 @@
 						temporaryStopReDraw: false,
 
 						formula: 0,
+
+						chargeMarks: [-10, -5, 0, 5, 10],
 					}
 				},
 				watch: {
