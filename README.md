@@ -20,6 +20,7 @@ npm
 * [MathJax](https://www.mathjax.org/) - Beautiful and accessible math in all browsers
 * [Electron](https://www.electronjs.org/) - Build cross-platform desktop apps with JavaScript 
 * [Electron-Builder](https://github.com/electron-userland/electron-builder) - A complete solution to package and build a ready for distribution Electron, Proton Native app for macOS, Windows and Linux with “auto update” support out of the box 
+* [Victor](http://victorjs.org/) - A JavaScript 2D vector maths library for Node.js and the browser
 
 ### License
 
