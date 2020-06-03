@@ -58,10 +58,10 @@
 								 ></vue-slider>
 							</b-col>
 							<b-col col="1">
-								<b-button @click="reset">Reset</b-button>
-							</b-col>
-							<b-col col="1">
-								<b-button v-b-toggle.calculation>Calculation</b-button>
+								<b-button-group>
+									<b-button @click="reset">Reset</b-button>
+									<b-button v-b-toggle.calculation variant="info">Calculation</b-button>
+								</b-button-group>
 								<b-sidebar id="calculation" title="Calculation" right shadow>
 							      <div class="px-3 py-2">
 							        <vue-mathjax :formula="formula"></vue-mathjax>
@@ -73,6 +73,11 @@
 							    	</span>
 							      </div>
 							    </b-sidebar>
+							</b-col>
+							<b-col col="1">
+								<a href="https://github.com/highlinestudent/gausslaw" target="_blank" class="float-right">
+									<b-img src="img/Octocat.png" fluid alt="Github logo" style="max-width: 50px;"></b-img>
+								</a>
 							</b-col>
 						</b-row>
 					</div>
@@ -229,7 +234,7 @@
 		    	var formula = '';
 		    	var subtitute = '';
 		    	if (distance > outerRadius) {
-		    		formula = '\\frac {K*(q_{in}+q_{out})}{r^2}';
+		    		formula = '\\frac {k*(q_{in}+q_{out})}{r^2}';
 		    		subtitute = '\\frac {8.99*10^9*(' + (chargeIn + chargeOut) + ')*10^{-9}}{' + (Math.pow(distance, 2)/100).toFixed(2) +'*10^{-4}}';
 		    		fieldValue = K*(chargeIn+chargeOut)*Math.pow(10, -9)/Math.pow(distance, 2)/Math.pow(10, -4);
 		    		//100 pixel equal 10 cm so divide the distance by 10
@@ -241,14 +246,14 @@
 		    		fieldValue = 0;
 		    		vec = new Victor(0, 0);
 		    	} else if (distance < innerRadius && distance > centerRadius) {
-		    		formula = '\\frac {K*q_{in}}{r^2}';
+		    		formula = '\\frac {k*q_{in}}{r^2}';
 		    		subtitute = '\\frac {8.99*10^9*' + chargeIn + '*10^{-9}}{' + (Math.pow(distance, 2)/100).toFixed(2) +'*10^{-4}}';
 		    		fieldValue = K*chargeIn*Math.pow(10, -9)/Math.pow(distance, 2)/Math.pow(10, -4);
 		    		//100 pixel equal 10 cm so divide the distance by 10
 		    		fieldValue *= Math.pow(10, 2);
 		    		vec = new Victor(fieldValue*x, fieldValue*y);
 		    	} else {
-		    		formula = '\\frac {K*q_{in}*r}{R_{in}^3}';
+		    		formula = '\\frac {k*q_{in}*r}{R_{in}^3}';
 		    		subtitute = '\\frac {8.99*10^9*' + chargeIn + '*10^{-9}*' + (distance/10).toFixed(2) + '*10^{-2}}{' + (Math.pow(centerRadius, 3)/Math.pow(10, 3)).toFixed(2) +'*10^{-6}}';
 		    		fieldValue = K*chargeIn*Math.pow(10, -9)*distance*Math.pow(10, -2)/Math.pow(centerRadius, 3)/Math.pow(10, -6);
 		    		//100 pixel equal 10 cm so divide the distance by 10
