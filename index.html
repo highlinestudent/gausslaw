@@ -376,7 +376,7 @@
 		    		fieldValue *= Math.pow(10, 2);
 		    		vec = new Victor(fieldValue*x, fieldValue*y);
 		    	} else {
-		    		formula = '\\frac {k*q_{in}*r}{R_{in}^3}';
+		    		formula = '\\frac {k*q_{in}*r}{R1^3}';
 		    		subtitute = '\\frac {8.99*10^9*' + chargeIn + '*10^{-9}*' + (distance/10).toFixed(2) + '*10^{-2}}{' + (Math.pow(centerRadius, 3)/Math.pow(10, 3)).toFixed(2) +'*10^{-6}}';
 		    		fieldValue = K*chargeIn*Math.pow(10, -9)*distance*Math.pow(10, -2)/Math.pow(centerRadius, 3)/Math.pow(10, -6);
 		    		//100 pixel equal 10 cm so divide the distance by 10
