@@ -540,13 +540,13 @@
 			    var arrowTop = new Victor(centerRadius*Math.cos(Math.PI/4), centerRadius*Math.sin(Math.PI/4));
 			    arrowR1.points([width/2, height/2, width/2 + arrowTop.x, height/2 + arrowTop.y]);
 			    arrowTop = new Victor(centerRadius/2*Math.cos(Math.PI/4), centerRadius/2*Math.sin(Math.PI/4));
-			    arrowR1Text.x(width/2 + arrowTop.x - 15);
-			    arrowR1Text.y(height/2 + arrowTop.y);
+			    arrowR1Text.x(width/2 + arrowTop.x + 7);
+			    arrowR1Text.y(height/2 + arrowTop.y - 5);
 
 			    arrowTop = new Victor(innerRadius*Math.cos(3*Math.PI/4), innerRadius*Math.sin(3*Math.PI/4));
 			    arrowR2.points([width/2, height/2, width/2 + arrowTop.x, height/2 + arrowTop.y]);
-			    arrowR2Text.x(width/2 + arrowTop.x + 15);
-			    arrowR2Text.y(height/2 + arrowTop.y - 15)
+			    arrowR2Text.x(width/2 + arrowTop.x - 10);
+			    arrowR2Text.y(height/2 + arrowTop.y - 25)
 
 			    arrowTop = new Victor(outerRadius*Math.cos(6*Math.PI/4), outerRadius*Math.sin(6*Math.PI/4));
 			    arrowR3.points([width/2, height/2, width/2 + arrowTop.x, height/2 + arrowTop.y]);
@@ -554,19 +554,19 @@
 			    arrowR3Text.x(width/2 + arrowTop.x);
 			    arrowR3Text.y(height/2 + arrowTop.y + 5);
 
-			    arrowTop = new Victor(outerRadius*Math.cos(7*Math.PI/4), outerRadius*Math.sin(7*Math.PI/4));
-			    outerChargeText.x(width/2 + arrowTop.x + 15);
-			    outerChargeText.y(height/2 + arrowTop.y);
+			    arrowTop = new Victor(outerRadius*Math.cos(2*Math.PI/4), outerRadius*Math.sin(2*Math.PI/4));
+			    outerChargeText.x(width/2 + arrowTop.x - 15);
+			    outerChargeText.y(height/2 + arrowTop.y + 2);
 			    outerChargeText.text(chargeRemain > 0 ? '+' + chargeRemain : chargeRemain);
 
-			    arrowTop = new Victor(innerRadius*Math.cos(7*Math.PI/4), innerRadius*Math.sin(7*Math.PI/4));
-			    innerChargeText.x(width/2 + arrowTop.x - 17);
-			    innerChargeText.y(height/2 + arrowTop.y);
+			    arrowTop = new Victor(innerRadius*Math.cos(2*Math.PI/4), innerRadius*Math.sin(2*Math.PI/4));
+			    innerChargeText.x(width/2 + arrowTop.x - 15);
+			    innerChargeText.y(height/2 + arrowTop.y - 15);
 			    innerChargeText.text(chargeIn > 0 ? -chargeIn : chargeIn == 0 ? chargeIn : '+' + (-chargeIn));
 
-			    arrowTop = new Victor(centerRadius*Math.cos(7*Math.PI/4), centerRadius*Math.sin(7*Math.PI/4));
-			    centerChargeText.x(width/2 + arrowTop.x + 4);
-			    centerChargeText.y(height/2 + arrowTop.y);
+			    arrowTop = new Victor(centerRadius*Math.cos(2*Math.PI/4), centerRadius*Math.sin(2*Math.PI/4));
+			    centerChargeText.x(width/2 + arrowTop.x - 15);
+			    centerChargeText.y(height/2 + arrowTop.y - 15);
 			    centerChargeText.text(chargeIn > 0 ? '+' + chargeIn : chargeIn);
 
 		    	layer.draw();
